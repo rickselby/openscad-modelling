@@ -71,22 +71,22 @@ module trapezoid(length, width_bottom, width_top, height)
   offset = diff / 2;
 
   points = [
-    [0, 0, 0],
-    [length, 0, 0],
-    [length, width_bottom, 0],
-    [0, width_bottom, 0],
-    [0, -offset, height],
-    [length, -offset, height],
-    [length, width_top - offset, height],
-    [0, width_top - offset, height]
-  ];
+      [0, 0, 0],
+      [length, 0, 0],
+      [length, width_bottom, 0],
+      [0, width_bottom, 0],
+      [0, -offset, height],
+      [length, -offset, height],
+      [length, width_top - offset, height],
+      [0, width_top - offset, height]
+    ];
   faces = [
-    [0,1,2,3],
-    [4,5,1,0],
-    [7,6,5,4],
-    [5,6,2,1],
-    [6,7,3,2],
-    [7,4,0,3]
-  ];
+      [0, 1, 2, 3],
+      [4, 5, 1, 0],
+      [7, 6, 5, 4],
+      [5, 6, 2, 1],
+      [6, 7, 3, 2],
+      [7, 4, 0, 3]
+    ];
   polyhedron(points, faces);
 }
