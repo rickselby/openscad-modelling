@@ -1,8 +1,13 @@
 // Things to change to alter the size of the holder
 
+// misbehaves = 63 x 89 x 30
+// nav = 63 x 89 x 20
+// supply = 63 x 89 x 15
+// contact = 89 x 63 x 15
+
 card_width = 63;
 card_length = 89;
-deck_height = 15;
+deck_height = 30;
 
 // Other things you may want to change
 
@@ -52,10 +57,10 @@ module holder()
   base();
   side_wall();
   translate([total_width - wall_width, 0, 0]) side_wall();
-  translate([0, discard_length + wall_width, 0]) join_wall();
-  translate([0, total_length - wall_width, 0]) join_wall();
   front_wall();
   translate([total_width, 0, 0]) mirror([1, 0, 0]) front_wall();
+  translate([0, discard_length + wall_width, 0]) join_wall();
+  translate([0, total_length - wall_width, 0]) join_wall();
 }
 
 module base()
@@ -64,20 +69,20 @@ module base()
   base_edge = wall_width * 2;
 
   // setup for rectangular cutouts
-  cutout_width = (inner_width / 2) - (base_edge * 1.5);
-  cutout_left_x = wall_width + base_edge;
+  cutout_width = (inner_width / 2) - (base_edge * 2.5);
+  cutout_left_x = wall_width + base_edge * 2;
   cutout_right_x = wall_width + (base_edge / 2) + (inner_width / 2);
 
   // base for deck holder at back
-  translate([0, discard_length + wall_width, 0])
+  translate([0, discard_length + (wall_width * 2), 0])
     difference() {
-      cube([total_width, draw_length + (wall_width * 2), floor_depth]);
+      cube([total_width, draw_length, floor_depth]);
 
       deck_cutout_length = draw_length - (base_edge * 2);
 
-      translate([cutout_left_x, base_edge + wall_width, 0])
+      translate([cutout_left_x, base_edge, 0])
         rounded_cube([cutout_width, deck_cutout_length, floor_depth]);
-      translate([cutout_right_x, base_edge + wall_width, 0])
+      translate([cutout_right_x, base_edge, 0])
         rounded_cube([cutout_width, deck_cutout_length, floor_depth]);
     }
 
@@ -85,25 +90,28 @@ module base()
   y_offset = sin(base_rotation) * floor_depth;
   z_offset = cos(base_rotation) * floor_depth;
 
-  // tilted base for discard at front
-  translate([0, wall_width - y_offset, front_height - z_offset])
-    rotate([-base_rotation, 0, 0])
-      difference() {
-        cube([total_width, titled_length, floor_depth]);
+  // base for discard at front
+  translate([0, wall_width, 0])
+    difference() {
+      cube([total_width, discard_length, front_height]);
 
-        translate([front_wall_width + wall_width, 0, 0])
-          cube([total_width - ((front_wall_width + wall_width) * 2), wall_width, floor_depth]);
-        translate([total_width / 2, wall_width, 0])
-          cylinder(floor_depth, cutout_radius, cutout_radius);
+      translate([front_wall_width + wall_width, 0, 0])
+        cube([total_width - ((front_wall_width + wall_width) * 2), wall_width, front_height]);
+      translate([total_width / 2, wall_width, 0])
+        cylinder(front_height, cutout_radius, cutout_radius);
 
-        discard_cutout_length = discard_length - cutout_radius - base_edge * 2 - wall_width;
-        discard_cutout_y = cutout_radius + base_edge + wall_width;
+      discard_cutout_length = discard_length - cutout_radius - base_edge * 2 - wall_width;
+      discard_cutout_y = cutout_radius + base_edge + wall_width;
 
-        translate([cutout_left_x, discard_cutout_y, 0])
-          rounded_cube([cutout_width, discard_cutout_length, floor_depth]);
-        translate([cutout_right_x, discard_cutout_y, 0])
-          rounded_cube([cutout_width, discard_cutout_length, floor_depth]);
-      }
+      translate([cutout_left_x, discard_cutout_y, 0])
+        rounded_cube([cutout_width, discard_cutout_length, front_height]);
+      translate([cutout_right_x, discard_cutout_y, 0])
+        rounded_cube([cutout_width, discard_cutout_length, front_height]);
+
+      translate([0, 0, front_height])
+        rotate([-base_rotation, 0, 0])
+          cube([total_width, titled_length, front_height]);
+    }
 }
 
 module side_wall()
