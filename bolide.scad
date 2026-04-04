@@ -14,11 +14,9 @@ translate([-spacing*(grid/2), -spacing*(grid/2), 0])
 }
 
 module square() {
-
 	difference() {
 		cube([spacing+diameter, spacing+diameter, diameter]);
 		translate([diameter,diameter,-0.1])
 			cube([spacing-diameter, spacing-diameter, diameter + 0.2]);
 	}
-
 }

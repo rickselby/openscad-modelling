@@ -10,9 +10,11 @@ lidSpacing = 10;		// Spacing between box and lid
 
 tray(
 	[
-		[80, [60,80]],	// Width of row, followed by lengths of sections
-		[60, [30,58.5,50]]
-	],			
+		[80, [60,80]],	// Width of row, followed by lengths of sections
+
+		[60, [30,58.5,50]]
+
+	],
 	25			// Height of Tray
 );
 
@@ -73,7 +75,7 @@ function sumVector(v, i) = (i < 0 ? 0 : (i == 0 ? v[i] : v[i] + sumVector(v, i-1
 function sumWidths(v, i) = (i < 0 ? 0 : (i == 0 ? v[i][0] : v[i][0] + sumWidths(v, i-1)));
 
 //function makeVectorTotal(v, i, o=[]) =
-//	(i < 0 ? 0 : 
+//	(i < 0 ? 0 :
 
 module singleWalls(lengths, height, yOffset)
 {
@@ -83,7 +85,7 @@ module singleWalls(lengths, height, yOffset)
 
 		translate([sumVector(lengths, (i-1)) + (thickness * i)
 						, yOffset + thickness, 0])
-			rotate([90,0,0]) 
+			rotate([90,0,0])
 		wall(lengths[i], height, thickness, [thickness, thickness, thickness, 0]);
 
 /*					translate([sumVector(sizes[j][1], (i-1)) + (thickness * i),
@@ -95,19 +97,24 @@ module singleWalls(lengths, height, yOffset)
 }
 
 module multiWalls(lengths1, lengths2, height, yOffset)
-{
-	lengths = makeVectorLengths(mergeVectors(makeVectorTotal(lengths1), makeVectorTotal(lengths2)));
+{
+
+	lengths = makeVectorLengths(mergeVectors(makeVectorTotal(lengths1), makeVectorTotal(lengths2)));
+
 	echo(lengths);
-	echo(makeVectorTotal(lengths1), makeVectorTotal(lengths2),
-	mergeVectors(makeVectorTotal(lengths1), makeVectorTotal(lengths2))
-	);
+	echo(makeVectorTotal(lengths1), makeVectorTotal(lengths2),
+
+	mergeVectors(makeVectorTotal(lengths1), makeVectorTotal(lengths2))
+
+	);
+
 	for(i=[0:(len(lengths)-1)])
 	{
 		echo(lengths[i], height, yOffset);
 
 		translate([sumVector(lengths, (i-1)) + (thickness * i)
 						, yOffset + thickness, 0])
-			rotate([90,0,0]) 
+			rotate([90,0,0])
 		wall(lengths[i], height, thickness, [thickness, thickness, thickness, 0]);
 
 /*					translate([sumVector(sizes[j][1], (i-1)) + (thickness * i),
@@ -124,11 +131,11 @@ module multiWalls(lengths1, lengths2, height, yOffset)
 module lid(length, width, thickness)
 {
 	border = thickness - lipThickness;
-	// Half thickness borders around 
+	// Half thickness borders around
 	wall(
 		length - (border + thickness), 	// full thickness border at front only
-		width - (border * 2), 
-		thickness, 
+		width - (border * 2),
+		thickness,
 		[thickness, border, border, border]
 	);
 
@@ -266,38 +273,72 @@ module curve(length)
 				cylinder(h=length+0.2, r=holespace, $fa=5, $fs=0.1);
 	}
 }
-
-
-function sumVector(v, i) = (i < 0 ? 0 : (i == 0 ? v[i] : v[i] + sumVector(v, i-1)));
-
-function makeVectorTotal(v, i=0) = 
-	(i == len(v) ? [] : concat(sumVector(v, i), makeVectorTotal(v, i+1)));
-
-function subVector(v, i=1) = 
-	(i == len(v) ? [] : concat(v[i], subVector(v, i+1)));
-
-function mergeVectors(v1, v2, last=0, sub=0) = 
-	(
-		(v1 == [] && v2 == []) ? [] : 
-		v1 == [] ? concat(
-			(last==1 ? v2[0]-thickness : v2[0])-sub, 
-			mergeVectors(v1, subVector(v2), 2, (last==1 ? sub+thickness : sub))) :
-		v2 == [] ? concat(
-			(last==2 ? v1[0]-thickness : v1[0])-sub, 
-			mergeVectors(subVector(v1), v2, 1, (last==2 ? sub+thickness : sub))) :
-		(v1[0] == v2[0])
-			? concat(v1[0]-sub, mergeVectors(subVector(v1), subVector(v2))) :
-		(v1[0] < v2[0])
-			? concat(
-				(last==2 ? v1[0]-thickness : v1[0])-sub, 
-				mergeVectors(subVector(v1), v2, 1, (last==2 ? sub+thickness : sub)))
-			: concat(
-				(last==1 ? v2[0]-thickness : v2[0])-sub, 
-				mergeVectors(v1, subVector(v2), 2, (last==1 ? sub+thickness : sub)))
-	);
-	
-function makeVectorLengths(v, i=0) = 
-	(i == len(v) ? [] : concat(v[i] - prevVal(v, i), makeVectorLengths(v, i+1)));
-
-function prevVal(v, i) = 
+
+
+
+
+function sumVector(v, i) = (i < 0 ? 0 : (i == 0 ? v[i] : v[i] + sumVector(v, i-1)));
+
+
+
+function makeVectorTotal(v, i=0) =
+
+	(i == len(v) ? [] : concat(sumVector(v, i), makeVectorTotal(v, i+1)));
+
+
+
+function subVector(v, i=1) =
+
+	(i == len(v) ? [] : concat(v[i], subVector(v, i+1)));
+
+
+
+function mergeVectors(v1, v2, last=0, sub=0) =
+
+	(
+
+		(v1 == [] && v2 == []) ? [] :
+
+		v1 == [] ? concat(
+
+			(last==1 ? v2[0]-thickness : v2[0])-sub,
+
+			mergeVectors(v1, subVector(v2), 2, (last==1 ? sub+thickness : sub))) :
+
+		v2 == [] ? concat(
+
+			(last==2 ? v1[0]-thickness : v1[0])-sub,
+
+			mergeVectors(subVector(v1), v2, 1, (last==2 ? sub+thickness : sub))) :
+
+		(v1[0] == v2[0])
+
+			? concat(v1[0]-sub, mergeVectors(subVector(v1), subVector(v2))) :
+
+		(v1[0] < v2[0])
+
+			? concat(
+
+				(last==2 ? v1[0]-thickness : v1[0])-sub,
+
+				mergeVectors(subVector(v1), v2, 1, (last==2 ? sub+thickness : sub)))
+
+			: concat(
+
+				(last==1 ? v2[0]-thickness : v2[0])-sub,
+
+				mergeVectors(v1, subVector(v2), 2, (last==1 ? sub+thickness : sub)))
+
+	);
+
+
+
+function makeVectorLengths(v, i=0) =
+
+	(i == len(v) ? [] : concat(v[i] - prevVal(v, i), makeVectorLengths(v, i+1)));
+
+
+
+function prevVal(v, i) =
+
 	(i <= 0 ? 0 : v[i-1]);

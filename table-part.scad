@@ -17,11 +17,11 @@ $fn = $preview ? 32 : 32;
 
 difference() {
   long_cylinder(full_length, full_width, full_height);
-  
-  translate([-offset, 0, 0]) { 
+
+  translate([-offset, 0, 0]) {
     indent();
   }
-  translate([offset, 0, 0]) { 
+  translate([offset, 0, 0]) {
     indent();
   }
 }
@@ -29,7 +29,7 @@ difference() {
 module indent()
 {
   each_height = (full_height / 2);
-  
+
   union() {
     long_cylinder(indent_bottom_length, indent_bottom_width, each_height);
     translate([0, 0, 2]) {
@@ -48,16 +48,16 @@ module long_flared_cylinder(length, width_bottom, width_top, height)
   radius_bottom = width_bottom / 2;
   radius_top = width_top / 2;
   cube_length = length - width_bottom;
-  
+
   union() {
     translate([length / 2 - radius_bottom, 0, 0]) {
       cylinder(height, radius_bottom, radius_top);
     }
-    
+
     translate([-(length / 2 - radius_bottom), 0, 0]) {
       union() {
         cylinder(height, radius_bottom, radius_top);
-        translate([0, -radius_bottom, 0]) { 
+        translate([0, -radius_bottom, 0]) {
           trapezoid(cube_length, width_bottom, width_top, height);
         }
       }
@@ -65,11 +65,11 @@ module long_flared_cylinder(length, width_bottom, width_top, height)
   }
 }
 
-module trapezoid(length, width_bottom, width_top, height) 
+module trapezoid(length, width_bottom, width_top, height)
 {
   diff = width_top - width_bottom;
   offset = diff / 2;
-  
+
   points = [
     [0, 0, 0],
     [length, 0, 0],
@@ -88,6 +88,5 @@ module trapezoid(length, width_bottom, width_top, height)
     [6,7,3,2],
     [7,4,0,3]
   ];
-  polyhedron(points, faces);  
+  polyhedron(points, faces);
 }
-

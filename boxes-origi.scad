@@ -11,7 +11,7 @@ lidSpacing = 10;		// Spacing between box and lid
 tray(
 	[
 		[80, [80]],	// Width of row, followed by lengths of sections
-	],			
+	],
 	25			// Height of Tray
 );
 
@@ -79,7 +79,7 @@ function sumVector(v, i) = (i < 0 ? 0 : (i == 0 ? v[i] : v[i] + sumVector(v, i-1
 function sumWidths(v, i) = (i < 0 ? 0 : (i == 0 ? v[i][0] : v[i][0] + sumWidths(v, i-1)));
 
 //function makeVectorTotal(v, i, o=[]) =
-//	(i < 0 ? 0 : 
+//	(i < 0 ? 0 :
 
 module singleWalls(lengths, height, yOffset)
 {
@@ -89,7 +89,7 @@ module singleWalls(lengths, height, yOffset)
 
 		translate([sumVector(lengths, (i-1)) + (thickness * i)
 						, yOffset + thickness, 0])
-			rotate([90,0,0]) 
+			rotate([90,0,0])
 		wall(lengths[i], height, thickness, [thickness, thickness, thickness, 0]);
 
 /*					translate([sumVector(sizes[j][1], (i-1)) + (thickness * i),
@@ -107,11 +107,11 @@ module singleWalls(lengths, height, yOffset)
 module lid(length, width, thickness)
 {
 	border = thickness - lipThickness;
-	// Half thickness borders around 
+	// Half thickness borders around
 	wall(
 		length - (border + thickness), 	// full thickness border at front only
-		width - (border * 2), 
-		thickness, 
+		width - (border * 2),
+		thickness,
 		[thickness, border, border, border]
 	);
 
@@ -253,6 +253,5 @@ module curve(length)
 
 function sumVector(v, i) = (i < 0 ? 0 : (i == 0 ? v[i] : v[i] + sumVector(v, i-1)));
 
-function makeVectorTotal(v, i=0) = 
+function makeVectorTotal(v, i=0) =
 	(i == len(v) ? [] : concat(sumVector(v, i), makeVectorTotal(v, i+1)));
-
