@@ -44,6 +44,10 @@ titled_length = sqrt((front_height ^ 2) + (discard_length ^ 2) - (floor_depth ^ 
 base_rotation = atan(front_height / discard_length) - atan(floor_depth / titled_length);
 
 edge_by_wall = wall_width * 4;
+cutout_radius = min(
+  (inner_width / 2) - edge_by_wall,
+  holder_height - floor_depth - (wall_width * 2)
+);
 
 // more window stuff
 first_window = ((wall_width * 4) + rounding) / tan(wall_rotation) + tan(base_rotation);
@@ -83,7 +87,6 @@ module base()
         rounded_cube([cutout_width, deck_cutout_length, floor_depth]);
     }
 
-  cutout_radius = (total_width / 2) - edge_by_wall - wall_width;
   y_offset = sin(base_rotation) * floor_depth;
   z_offset = cos(base_rotation) * floor_depth;
 
@@ -92,19 +95,20 @@ module base()
     difference() {
       cube([total_width, discard_length, front_height]);
 
-      translate([edge_by_wall + wall_width, 0, 0])
-        cube([total_width - ((edge_by_wall + wall_width) * 2), wall_width, front_height]);
-      translate([total_width / 2, wall_width, 0])
+      // rounded cutout at front
+      translate([total_width / 2, 0])
         cylinder(front_height, cutout_radius, cutout_radius);
 
       discard_cutout_length = discard_length - cutout_radius - base_edge * 2 - wall_width;
       discard_cutout_y = cutout_radius + base_edge + wall_width;
 
+      // square cutouts to save material
       translate([cutout_left_x, discard_cutout_y, 0])
         rounded_cube([cutout_width, discard_cutout_length, front_height]);
       translate([cutout_right_x, discard_cutout_y, 0])
         rounded_cube([cutout_width, discard_cutout_length, front_height]);
 
+      // slope the base for easy pickup of cards
       translate([0, 0, front_height])
         rotate([-base_rotation, 0, 0])
           cube([total_width, titled_length, front_height]);
@@ -146,8 +150,6 @@ module side_wall()
 
 module join_wall()
 {
-  cutout_radius = (inner_width / 2) - edge_by_wall;
-
   difference() {
     cube([total_width, wall_width, holder_height]);
 
