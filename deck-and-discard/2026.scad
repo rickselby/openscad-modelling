@@ -16,6 +16,7 @@ holder_height = 40;
 floor_depth = wall_width;
 front_height = floor_depth + 10;
 rounding = 2;
+windows = false;
 
 $fs = $preview ? 1 : 0.05;  // Don't generate smaller facets than 0.1 mm
 $fa = $preview ? 15 : 5;    // Don't generate larger angles than 5 degrees
@@ -30,6 +31,12 @@ total_width = card_width + 10;
 inner_width = total_width - (wall_width * 2);
 total_length = discard_length + draw_length + (wall_width * 2);
 
+initial_window_width = draw_length - (wall_width * 4);
+// can't assign in an if block
+large_windows = initial_window_width > (wall_width * 8);
+window_width = large_windows ? (draw_length / 2) - (wall_width * 3) : initial_window_width;
+deck_windows = large_windows ? 2 : 1;
+
 wall_rotation = atan((holder_height - front_height) / (discard_length));
 
 // base calculations that other things need
@@ -37,6 +44,9 @@ titled_length = sqrt((front_height ^ 2) + (discard_length ^ 2) - (floor_depth ^ 
 base_rotation = atan(front_height / discard_length) - atan(floor_depth / titled_length);
 
 edge_by_wall = wall_width * 4;
+
+// more window stuff
+first_window = ((wall_width * 4) + rounding) / tan(wall_rotation) + tan(base_rotation);
 
 // build it!
 holder();
@@ -103,6 +113,10 @@ module base()
 
 module side_wall()
 {
+  window_space = discard_length - first_window;
+  window_count = floor(window_space / (window_width + (wall_width * 2)));
+  window_gap = (window_space - (window_count * window_width)) / (window_count + 1);
+
   difference() {
     cube([wall_width, total_length, holder_height]);
 
@@ -111,6 +125,22 @@ module side_wall()
       rotate([wall_rotation, 0, 0])
         translate([0, -total_length / 2, 0])
           cube([wall_width, total_length, holder_height]);
+
+    if (windows) {
+      // window(s) for the deck holder
+      for (i = [1:(deck_windows)]) {
+        start_point = discard_length + (wall_width * 3) + ((window_width + (wall_width * 2)) * (i - 1));
+        translate([0, start_point, floor_depth + wall_width * 2])
+          window();
+      }
+
+      // windows for the discard area
+      for (i = [1:(window_count)]) {
+        start_point = wall_width + first_window + (window_gap * i) + (window_width * (i - 1));
+        translate([0, start_point, floor_depth + wall_width])
+          squished_window(start_point);
+      }
+    }
   }
 }
 
