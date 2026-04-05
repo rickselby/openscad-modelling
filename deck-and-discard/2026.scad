@@ -5,8 +5,8 @@
 // supply = 63 x 89 x 15
 // contact = 89 x 63 x 15
 
-card_width = 89;
-card_length = 63;
+card_width = 63;
+card_length = 89;
 deck_height = 15;
 
 // Other things you may want to change
@@ -18,8 +18,8 @@ front_height = floor_depth + 10;
 rounding = 2;
 windows = false;
 
-$fs = $preview ? 1 : 0.05;  // Don't generate smaller facets than 0.1 mm
-$fa = $preview ? 15 : 5;    // Don't generate larger angles than 5 degrees
+$fs = $preview ? 1 : 0.1;  // Don't generate smaller facets than 0.1 mm
+$fa = $preview ? 15 : 2;    // Don't generate larger angles than 5 degrees
 
 ////////////////////////////////////////////
 
@@ -43,6 +43,7 @@ wall_rotation = atan((holder_height - front_height) / (discard_length));
 titled_length = sqrt((front_height ^ 2) + (discard_length ^ 2) - (floor_depth ^ 2));
 base_rotation = atan(front_height / discard_length) - atan(floor_depth / titled_length);
 
+base_edge = wall_width * 2;
 edge_by_wall = wall_width * 4;
 cutout_radius_width = (inner_width / 2) - edge_by_wall;
 cutout_radius = min(
@@ -54,7 +55,8 @@ cutout_radius = min(
 // calculate where
 
 // build it!
-holder();
+//holder();
+base();
 
 module holder()
 {
@@ -67,9 +69,6 @@ module holder()
 
 module base()
 {
-  // width of "edge" on the base
-  base_edge = wall_width * 2;
-
   // setup for rectangular cutouts
   cutout_width = (inner_width / 2) - edge_by_wall - wall_width;
   cutout_left_x = wall_width + edge_by_wall;
@@ -92,28 +91,42 @@ module base()
   z_offset = cos(base_rotation) * floor_depth;
 
   // base for discard at front
-  translate([0, 0, 0])
+  difference() {
+    cube([total_width, discard_length, front_height]);
+
+    // rounded cutout at front
+    translate([total_width / 2, 0])
+      cutout_cylinder(front_height);
+
+    h = cutout_radius + base_edge + rounding;
+    x = (total_width / 2) - edge_by_wall - wall_width - rounding;
+    new_cutout_y = sqrt((h ^ 2) - (x ^ 2));
+
+    new_cutout_length = discard_length - base_edge;
+
     difference() {
-      cube([total_width, discard_length, front_height]);
-
-      // rounded cutout at front
+      union() {
+        // square cutouts to save material
+        translate([cutout_left_x, 0, 0])
+          rounded_cube([cutout_width, new_cutout_length, front_height]);
+        translate([cutout_right_x, 0, 0])
+          rounded_cube([cutout_width, new_cutout_length, front_height]);
+      }
       translate([total_width / 2, 0])
-        cutout_cylinder(front_height);
+        cutout_cylinder(front_height, base_edge);
 
-      discard_cutout_length = discard_length - cutout_radius - base_edge * 2 - wall_width;
-      discard_cutout_y = cutout_radius + base_edge + wall_width;
+      translate([cutout_left_x + rounding, new_cutout_y, 0])
+        fill_in_corner(new_cutout_y);
 
-      // square cutouts to save material
-      translate([cutout_left_x, discard_cutout_y, 0])
-        rounded_cube([cutout_width, discard_cutout_length, front_height]);
-      translate([cutout_right_x, discard_cutout_y, 0])
-        rounded_cube([cutout_width, discard_cutout_length, front_height]);
-
-      // slope the base for easy pickup of cards
-      translate([0, 0, front_height])
-        rotate([-base_rotation, 0, 0])
-          cube([total_width, titled_length, front_height]);
+      translate([total_width - cutout_left_x - rounding, new_cutout_y, 0])
+        mirror([1, 0, 0])
+          fill_in_corner(new_cutout_y);
     }
+    // slope the base for easy pickup of cards
+    translate([0, 0, front_height])
+      rotate([-base_rotation, 0, 0])
+        cube([total_width, titled_length, front_height]);
+  }
 }
 
 module side_wall()
@@ -198,7 +211,6 @@ module window()
       ]);
 }
 
-
 module rounded_cube(size = [10, 10, 10], radius = wall_width)
 {
   translate_min = radius;
@@ -218,8 +230,25 @@ module rounded_rect(size = [5, 5], radius = rounding)
       circle(radius);
 }
 
-module cutout_cylinder(height)
+module cutout_cylinder(height, adjust = 0)
 {
-  scale([cutout_radius_width / cutout_radius, 1, 1])
-    cylinder(height, cutout_radius, cutout_radius);
+  scale([cutout_radius_width / (cutout_radius), 1, 1])
+    cylinder(height, cutout_radius + adjust, cutout_radius + adjust);
+}
+
+module fill_in_corner(length = 5)
+{
+  h = cutout_radius + base_edge + rounding;
+  x = (total_width / 2) - edge_by_wall - wall_width - rounding;
+
+  angle = asin(x / h);
+  touch_h = h - rounding;
+  touch_point_x = (sin(angle) * touch_h);
+
+  fx = x - touch_point_x;
+  difference() {
+    translate([-rounding, -length, 0])
+      cube([fx + rounding, length, front_height]);
+    cylinder(front_height, rounding, rounding);
+  }
 }
