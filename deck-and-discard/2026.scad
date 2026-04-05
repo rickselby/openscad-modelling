@@ -44,13 +44,14 @@ titled_length = sqrt((front_height ^ 2) + (discard_length ^ 2) - (floor_depth ^ 
 base_rotation = atan(front_height / discard_length) - atan(floor_depth / titled_length);
 
 edge_by_wall = wall_width * 4;
+cutout_radius_width = (inner_width / 2) - edge_by_wall;
 cutout_radius = min(
-  (inner_width / 2) - edge_by_wall,
+  cutout_radius_width,
   holder_height - floor_depth - (wall_width * 2)
 );
 
 // more window stuff
-first_window = ((wall_width * 4) + rounding) / tan(wall_rotation) + tan(base_rotation);
+// calculate where
 
 // build it!
 holder();
@@ -97,7 +98,7 @@ module base()
 
       // rounded cutout at front
       translate([total_width / 2, 0])
-        cylinder(front_height, cutout_radius, cutout_radius);
+        cutout_cylinder(front_height);
 
       discard_cutout_length = discard_length - cutout_radius - base_edge * 2 - wall_width;
       discard_cutout_y = cutout_radius + base_edge + wall_width;
@@ -117,10 +118,6 @@ module base()
 
 module side_wall()
 {
-  window_space = discard_length - first_window;
-  window_count = floor(window_space / (window_width + (wall_width * 2)));
-  window_gap = (window_space - (window_count * window_width)) / (window_count + 1);
-
   difference() {
     cube([wall_width, total_length, holder_height]);
 
@@ -137,6 +134,15 @@ module side_wall()
         translate([0, start_point, floor_depth + wall_width * 2])
           window();
       }
+
+      // position of first window in discard area
+      first_window = ((wall_width * 4) + rounding) / tan(wall_rotation) + tan(base_rotation);
+      // space remaining for windows
+      window_space = discard_length - first_window;
+      // how many windows we can fit in the space
+      window_count = floor(window_space / (window_width + (wall_width * 2)));
+      // consistent gap between the windows
+      window_gap = (window_space - (window_count * window_width)) / (window_count + 1);
 
       // windows for the discard area
       for (i = [1:(window_count)]) {
@@ -155,7 +161,7 @@ module join_wall()
 
     translate([total_width / 2, wall_width, holder_height])
       rotate([90, 0, 0])
-        cylinder(wall_width, cutout_radius, cutout_radius);
+        cutout_cylinder(wall_width);
   }
 }
 
@@ -210,4 +216,10 @@ module rounded_rect(size = [5, 5], radius = rounding)
     for (translate_y = [radius, size[1] - radius])
     translate(v = [translate_x, translate_y, 0])
       circle(radius);
+}
+
+module cutout_cylinder(height)
+{
+  scale([cutout_radius_width / cutout_radius, 1, 1])
+    cylinder(height, cutout_radius, cutout_radius);
 }
