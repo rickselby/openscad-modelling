@@ -57,6 +57,7 @@ cutout_radius = min(
 // build it!
 //holder();
 base();
+//fill_in_corner2();
 
 module holder()
 {
@@ -102,6 +103,9 @@ module base()
     x = (total_width / 2) - edge_by_wall - wall_width - rounding;
     new_cutout_y = sqrt((h ^ 2) - (x ^ 2));
 
+    x2 = wall_width + rounding;
+    y2 = sqrt((h^2) - (x2^2));
+
     new_cutout_length = discard_length - base_edge;
 
     difference() {
@@ -118,9 +122,16 @@ module base()
       translate([cutout_left_x + rounding, new_cutout_y, 0])
         fill_in_corner(new_cutout_y);
 
+      translate([(total_width / 2) - wall_width - rounding, y2, 0])
+        mirror([1, 0, 0])
+          fill_in_corner2(y2);
+
       translate([total_width - cutout_left_x - rounding, new_cutout_y, 0])
         mirror([1, 0, 0])
           fill_in_corner(new_cutout_y);
+
+      translate([(total_width / 2) + wall_width + rounding, y2, 0])
+          fill_in_corner2(y2);
     }
     // slope the base for easy pickup of cards
     translate([0, 0, front_height])
@@ -236,7 +247,7 @@ module cutout_cylinder(height, adjust = 0)
     cylinder(height, cutout_radius + adjust, cutout_radius + adjust);
 }
 
-module fill_in_corner(length = 5)
+module fill_in_corner(length)
 {
   h = cutout_radius + base_edge + rounding;
   x = (total_width / 2) - edge_by_wall - wall_width - rounding;
@@ -246,6 +257,25 @@ module fill_in_corner(length = 5)
   touch_point_x = (sin(angle) * touch_h);
 
   fx = x - touch_point_x;
+  difference() {
+    translate([-rounding, -length, 0])
+      cube([fx + rounding, length, front_height]);
+    cylinder(front_height, rounding, rounding);
+  }
+}
+
+module fill_in_corner2(length = 5)
+{
+  h = cutout_radius + base_edge + rounding;
+  x = wall_width + rounding;
+
+  angle = asin(x / h);
+  touch_h = h - rounding;
+  touch_point_x = (sin(angle) * touch_h);
+
+  echo(x=x, tpx=touch_point_x);
+
+  fx = touch_point_x - x;
   difference() {
     translate([-rounding, -length, 0])
       cube([fx + rounding, length, front_height]);
