@@ -5,14 +5,14 @@
 // supply = 63 x 89 x 15
 // contact = 89 x 63 x 15
 
-card_width = 63;
-card_length = 89;
-deck_height = 30;
+card_width = 89;
+card_length = 63;
+deck_height = 15;
 
 // Other things you may want to change
 
 wall_width = 2;
-holder_height = 40;
+holder_height = card_length * 0.45;
 floor_depth = wall_width;
 front_height = floor_depth + 10;
 rounding = 2;
