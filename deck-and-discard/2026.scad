@@ -13,11 +13,9 @@ deck_height = 30;
 
 wall_width = 2;
 holder_height = 40;
-front_wall_width_percent = 6;
 floor_depth = wall_width;
 front_height = floor_depth + 10;
 rounding = 2;
-deck_extra_percent = 15;
 
 $fs = $preview ? 1 : 0.05;  // Don't generate smaller facets than 0.1 mm
 $fa = $preview ? 15 : 5;    // Don't generate larger angles than 5 degrees
@@ -32,16 +30,13 @@ total_width = card_width + 10;
 inner_width = total_width - (wall_width * 2);
 total_length = discard_length + draw_length + (wall_width * 2);
 
-front_wall_width = inner_width / 100 * front_wall_width_percent;
-
 wall_rotation = atan((holder_height - front_height) / (discard_length));
 
 // base calculations that other things need
 titled_length = sqrt((front_height ^ 2) + (discard_length ^ 2) - (floor_depth ^ 2));
 base_rotation = atan(front_height / discard_length) - atan(floor_depth / titled_length);
 
-// more window stuff
-first_window = ((wall_width * 4) + rounding) / tan(wall_rotation) + tan(base_rotation);
+edge_by_wall = wall_width * 4;
 
 // build it!
 holder();
@@ -61,9 +56,9 @@ module base()
   base_edge = wall_width * 2;
 
   // setup for rectangular cutouts
-  cutout_width = (inner_width / 2) - (base_edge * 2.5);
-  cutout_left_x = wall_width + base_edge * 2;
-  cutout_right_x = wall_width + (base_edge / 2) + (inner_width / 2);
+  cutout_width = (inner_width / 2) - edge_by_wall - wall_width;
+  cutout_left_x = wall_width + edge_by_wall;
+  cutout_right_x = total_width - wall_width - edge_by_wall - cutout_width;
 
   // base for deck holder at back
   translate([0, discard_length + wall_width, 0])
@@ -78,7 +73,7 @@ module base()
         rounded_cube([cutout_width, deck_cutout_length, floor_depth]);
     }
 
-  cutout_radius = (total_width / 2) - front_wall_width - wall_width;
+  cutout_radius = (total_width / 2) - edge_by_wall - wall_width;
   y_offset = sin(base_rotation) * floor_depth;
   z_offset = cos(base_rotation) * floor_depth;
 
@@ -87,8 +82,8 @@ module base()
     difference() {
       cube([total_width, discard_length, front_height]);
 
-      translate([front_wall_width + wall_width, 0, 0])
-        cube([total_width - ((front_wall_width + wall_width) * 2), wall_width, front_height]);
+      translate([edge_by_wall + wall_width, 0, 0])
+        cube([total_width - ((edge_by_wall + wall_width) * 2), wall_width, front_height]);
       translate([total_width / 2, wall_width, 0])
         cylinder(front_height, cutout_radius, cutout_radius);
 
@@ -119,23 +114,17 @@ module side_wall()
   }
 }
 
-
 module join_wall()
 {
-  cutout_width = (inner_width / 2) - (inner_width / 100 * deck_extra_percent);
+  cutout_radius = (inner_width / 2) - edge_by_wall;
 
   difference() {
     cube([total_width, wall_width, holder_height]);
 
     translate([total_width / 2, wall_width, holder_height])
       rotate([90, 0, 0])
-        cylinder(wall_width, cutout_width, cutout_width);
+        cylinder(wall_width, cutout_radius, cutout_radius);
   }
-}
-
-module front_wall()
-{
-  cube([front_wall_width + wall_width, wall_width, front_height]);
 }
 
 module squished_window(start_point)
