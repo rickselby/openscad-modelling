@@ -30,7 +30,7 @@ discard_length = card_length + 5;
 draw_length = deck_height + 5;
 total_width = card_width + 10;
 inner_width = total_width - (wall_width * 2);
-total_length = discard_length + draw_length + (wall_width * 3);
+total_length = discard_length + draw_length + (wall_width * 2);
 
 front_wall_width = inner_width / 100 * front_wall_width_percent;
 
@@ -57,9 +57,7 @@ module holder()
   base();
   side_wall();
   translate([total_width - wall_width, 0, 0]) side_wall();
-  front_wall();
-  translate([total_width, 0, 0]) mirror([1, 0, 0]) front_wall();
-  translate([0, discard_length + wall_width, 0]) join_wall();
+  translate([0, discard_length, 0]) join_wall();
   translate([0, total_length - wall_width, 0]) join_wall();
 }
 
@@ -74,7 +72,7 @@ module base()
   cutout_right_x = wall_width + (base_edge / 2) + (inner_width / 2);
 
   // base for deck holder at back
-  translate([0, discard_length + (wall_width * 2), 0])
+  translate([0, discard_length + wall_width, 0])
     difference() {
       cube([total_width, draw_length, floor_depth]);
 
@@ -91,7 +89,7 @@ module base()
   z_offset = cos(base_rotation) * floor_depth;
 
   // base for discard at front
-  translate([0, wall_width, 0])
+  translate([0, 0, 0])
     difference() {
       cube([total_width, discard_length, front_height]);
 
@@ -124,14 +122,14 @@ module side_wall()
     cube([wall_width, total_length, holder_height]);
 
     // slice out the top to angle it down towards the front
-    translate([0, (discard_length / 2) + wall_width, holder_height - (holder_height - front_height) / 2])
+    translate([0, (discard_length / 2), holder_height - (holder_height - front_height) / 2])
       rotate([wall_rotation, 0, 0])
         translate([0, -total_length / 2, 0])
           cube([wall_width, total_length, holder_height]);
 
     // window(s) for the deck holder
     for (i = [1:(deck_windows)]) {
-      start_point = discard_length + (wall_width * 4) + ((window_width + (wall_width * 2)) * (i - 1));
+      start_point = discard_length + (wall_width * 3) + ((window_width + (wall_width * 2)) * (i - 1));
       translate([0, start_point, floor_depth + wall_width * 2])
         window();
     }
