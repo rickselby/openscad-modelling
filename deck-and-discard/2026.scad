@@ -16,6 +16,8 @@ floor_depth = wall_width;
 front_height = floor_depth + 5;
 rounding = 2;
 windows = false;
+// mm to add to card width/height / deck height
+extra_space = 5;
 
 $fs = $preview ? 1 : 0.1;  // Don't generate smaller facets than 0.1 mm
 $fa = $preview ? 15 : 2;    // Don't generate larger angles than 5 degrees
@@ -26,8 +28,8 @@ $fa = $preview ? 15 : 2;    // Don't generate larger angles than 5 degrees
 
 holder_height = card_length * 0.45;
 front_length = card_length;
-back_length = deck_height + 5;
-total_width = card_width + (wall_width * 2) + 5;
+back_length = deck_height + extra_space;
+total_width = card_width + (wall_width * 2) + extra_space;
 inner_width = total_width - (wall_width * 2);
 total_length = front_length + back_length + (wall_width * 2);
 
@@ -44,8 +46,8 @@ wall_rotation = atan((holder_height - front_height) / (front_length));
 titled_length = sqrt((front_height ^ 2) + (front_length ^ 2) - (floor_depth ^ 2));
 base_rotation = atan(front_height / front_length) - atan(floor_depth / titled_length);
 
-base_edge = wall_width * 2;
-back_edge_by_wall = wall_width * 6;
+base_edge = extra_space;
+back_edge_by_wall = extra_space * 2.5;
 
 front_cutout_radius = (inner_width / 2) - base_edge;;
 
