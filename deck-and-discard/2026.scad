@@ -26,7 +26,7 @@ $fa = $preview ? 15 : 2;    // Don't generate larger angles than 5 degrees
 
 // Calculated things
 
-holder_height = card_length * 0.45;
+holder_height = max(card_length * 0.45, deck_height + floor_depth + extra_space);
 front_length = card_length;
 back_length = deck_height + extra_space;
 total_width = card_width + (wall_width * 2) + extra_space;
