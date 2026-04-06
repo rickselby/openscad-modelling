@@ -5,8 +5,8 @@
 // supply = 63 x 89 x 15
 // contact = 89 x 63 x 15
 
-card_width = 89;
-card_length = 63;
+card_width = 63;
+card_length = 89;
 deck_height = 15;
 
 // Other things you may want to change
@@ -27,7 +27,8 @@ $fa = $preview ? 15 : 2;    // Don't generate larger angles than 5 degrees
 // Calculated things
 
 holder_height = max(card_length * 0.45, deck_height + floor_depth + extra_space);
-front_length = card_length;
+front_length = card_length * (2/3);
+echo(front_length);
 back_length = deck_height + extra_space;
 total_width = card_width + (wall_width * 2) + extra_space;
 inner_width = total_width - (wall_width * 2);
@@ -84,49 +85,11 @@ module base()
   difference() {
     cube([total_width, front_length, front_height]);
 
-    // rounded cutout at front
-    translate([total_width / 2, 0])
-      cylinder(front_height, front_cutout_radius, front_cutout_radius);
+    front_cutout_length = front_length - (base_edge * 2);
 
-    // rectangular-ish cutouts to save material
-    difference() {
-      // setup for rectangular cutouts
-      cutout_length = front_length - base_edge;
-
-      union() {
-        for(x = cutout_x)
-          translate([x, 0, 0])
-            rounded_cube([cutout_width, cutout_length, front_height]);
-      }
-
-      // cut out the rounded cut out at the front plus the base edge
-      translate([total_width / 2, 0])
-        cylinder(front_height, front_cutout_radius + base_edge, front_cutout_radius + base_edge);
-
-      // round the front corners
-      h = front_cutout_radius + base_edge + rounding;
-      // x,y for center of circle for rounding the corner nearest the wall
-      x1 = front_cutout_radius - rounding;
-      y1 = sqrt((h ^ 2) - (x1 ^ 2));
-      // x,y for center of circle for rounding the corner nearest the center
-      x2 = wall_width + rounding;
-      y2 = sqrt((h^2) - (x2^2));
-
-      for(x = cutout_x) {
-        x1_from_left = x + rounding;
-        x1 = (total_width / 2) - x1_from_left;
-        y1 = sqrt((h ^ 2) - (x1 ^ 2));
-        translate([x1_from_left, y1, 0])
-          fill_in_corner(h, x1, y1);
-
-        x2_from_left = x + cutout_width - rounding;
-        x2 = (total_width / 2) - x2_from_left;
-        y2 = sqrt((h^2) - (x2^2));
-        translate([x2_from_left, y2, 0])
-          mirror([1, 0, 0])
-            fill_in_corner(h, x2, y2, xpos = false);
-      }
-    }
+    for (x = cutout_x)
+      translate([x, base_edge, 0])
+        rounded_cube([cutout_width, front_cutout_length, front_height]);
 
     // slope the base for easy pickup of cards
     translate([0, 0, front_height])
@@ -243,16 +206,4 @@ module rounded_rect(size = [5, 5], radius = rounding)
       for (translate_y = [radius, size[1] - radius])
         translate(v = [translate_x, translate_y, 0])
           circle(radius);
-}
-
-module fill_in_corner(h, x, length, xpos = true)
-{
-  touch_point_x = (sin(asin(x / h)) * (h - rounding));
-
-  fx = xpos ? x - touch_point_x : touch_point_x - x;
-  difference() {
-    translate([-rounding, -length, 0])
-      cube([fx + rounding, length, front_height]);
-    cylinder(front_height, rounding, rounding);
-  }
 }
