@@ -65,8 +65,11 @@ module holder()
 
 module base()
 {
-  // base for back
+  cutouts = 3;
+  cutout_width = (inner_width - (base_edge * (cutouts + 1))) / cutouts;
+  cutout_x = [ for (a = [ 1 : cutouts ]) wall_width + (base_edge * a) + (cutout_width * (a - 1)) ];
 
+  // base for back
   translate([0, front_length + wall_width, 0])
     difference() {
       cube([total_width, back_length, floor_depth]);
@@ -74,10 +77,9 @@ module base()
       back_cutout_width = (inner_width / 2) - (base_edge / 2) - back_edge_by_wall;
       back_cutout_length = back_length - (base_edge * 2);
 
-      translate([wall_width + back_edge_by_wall, base_edge, 0])
-        rounded_cube([back_cutout_width, back_cutout_length, floor_depth]);
-      translate([(total_width / 2) + (base_edge / 2), base_edge, 0])
-        rounded_cube([back_cutout_width, back_cutout_length, floor_depth]);
+      for(x = cutout_x)
+        translate([x, base_edge, 0])
+          rounded_cube([cutout_width, back_cutout_length, floor_depth]);
     }
 
   // base for front
@@ -91,17 +93,12 @@ module base()
     // rectangular-ish cutouts to save material
     difference() {
       // setup for rectangular cutouts
-      cutout_width = (inner_width / 2) - base_edge - wall_width;
-      cutout_left_x = wall_width + base_edge;
-      cutout_right_x = total_width - wall_width - base_edge - cutout_width;
       cutout_length = front_length - base_edge;
 
       union() {
-        // make the rectangles the full length
-        translate([cutout_left_x, 0, 0])
-          rounded_cube([cutout_width, cutout_length, front_height]);
-        translate([cutout_right_x, 0, 0])
-          rounded_cube([cutout_width, cutout_length, front_height]);
+        for(x = cutout_x)
+          translate([x, 0, 0])
+            rounded_cube([cutout_width, cutout_length, front_height]);
       }
 
       // cut out the rounded cut out at the front plus the base edge
@@ -117,19 +114,20 @@ module base()
       x2 = wall_width + rounding;
       y2 = sqrt((h^2) - (x2^2));
 
-      translate([cutout_left_x + rounding, y1, 0])
-        fill_in_corner(h, x1, y1);
-
-      translate([(total_width / 2) - wall_width - rounding, y2, 0])
-        mirror([1, 0, 0])
-          fill_in_corner(h, x2, y2, xpos = false);
-
-      translate([total_width - cutout_left_x - rounding, y1, 0])
-        mirror([1, 0, 0])
+      for(x = cutout_x) {
+        x1_from_left = x + rounding;
+        x1 = (total_width / 2) - x1_from_left;
+        y1 = sqrt((h ^ 2) - (x1 ^ 2));
+        translate([x1_from_left, y1, 0])
           fill_in_corner(h, x1, y1);
 
-      translate([(total_width / 2) + wall_width + rounding, y2, 0])
-        fill_in_corner(h, x2, y2, xpos = false);
+        x2_from_left = x + cutout_width - rounding;
+        x2 = (total_width / 2) - x2_from_left;
+        y2 = sqrt((h^2) - (x2^2));
+        translate([x2_from_left, y2, 0])
+          mirror([1, 0, 0])
+            fill_in_corner(h, x2, y2, xpos = false);
+      }
     }
 
     // slope the base for easy pickup of cards
