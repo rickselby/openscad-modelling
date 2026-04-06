@@ -5,8 +5,8 @@
 // supply = 63 x 89 x 15
 // contact = 89 x 63 x 15
 
-card_width = 63;
-card_length = 89;
+card_width = 89;
+card_length = 63;
 deck_height = 15;
 
 // Other things you may want to change
@@ -177,7 +177,7 @@ module side_wall()
 
 module join_wall()
 {
-  cutout_radius_width = (inner_width / 2) - back_edge_by_wall;
+  cutout_radius_width = (inner_width / 2) - (extra_space * 1.25);
   cutout_radius = min(
     cutout_radius_width,
     holder_height - floor_depth - (wall_width * 2)
