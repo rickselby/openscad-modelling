@@ -13,7 +13,8 @@ deck_height = 15;
 
 wall_width = 2;
 floor_depth = wall_width;
-front_height = floor_depth + 5;
+front_height = floor_depth + 4;
+// corner rounding on cutouts
 rounding = 2;
 windows = false;
 // mm to add to card width/height / deck height
@@ -27,11 +28,13 @@ $fa = $preview ? 15 : 2;    // Don't generate larger angles than 5 degrees
 // Calculated things
 
 holder_height = max(card_length * 0.45, deck_height + floor_depth + extra_space);
-front_length = card_length * (2/3);
-echo(front_length);
+
+inner_width = card_width + extra_space;
+total_width = inner_width + (wall_width * 2);
+
+front_tilted_length = card_length * (2/3);
+front_length = sqrt((front_tilted_length ^ 2) - ((front_height - floor_depth) ^ 2));
 back_length = deck_height + extra_space;
-total_width = card_width + (wall_width * 2) + extra_space;
-inner_width = total_width - (wall_width * 2);
 total_length = front_length + back_length + (wall_width * 2);
 
 initial_window_width = back_length - (wall_width * 4);
@@ -43,36 +46,34 @@ back_windows = large_windows ? 2 : 1;
 // angle of rotation for the wall cutouts
 wall_rotation = atan((holder_height - front_height) / (front_length));
 
-// base calculations that other things need
-titled_length = sqrt((front_height ^ 2) + (front_length ^ 2) - (floor_depth ^ 2));
-base_rotation = atan(front_height / front_length) - atan(floor_depth / titled_length);
-
-base_edge = extra_space;
-
-front_cutout_radius = (inner_width / 2) - base_edge;;
+// base calculations that windows need
+base_rotation = asin((front_height - floor_depth) / front_tilted_length);
 
 // build it!
 holder();
+//join_wall();
 
 module holder()
 {
-  base();
+  translate([wall_width, 0, 0]) base();
   side_wall();
   translate([total_width - wall_width, 0, 0]) side_wall();
-  translate([0, front_length, 0]) join_wall();
-  translate([0, total_length - wall_width, 0]) join_wall();
+  translate([wall_width, front_length, 0]) join_wall();
+  translate([wall_width, total_length - wall_width, 0]) join_wall();
 }
 
 module base()
 {
+  base_edge = extra_space;
+
   cutouts = 3;
   cutout_width = (inner_width - (base_edge * (cutouts + 1))) / cutouts;
-  cutout_x = [ for (a = [ 1 : cutouts ]) wall_width + (base_edge * a) + (cutout_width * (a - 1)) ];
+  cutout_x = [ for (a = [ 1 : cutouts ]) (base_edge * a) + (cutout_width * (a - 1)) ];
 
   // base for back
   translate([0, front_length + wall_width, 0])
     difference() {
-      cube([total_width, back_length, floor_depth]);
+      cube([inner_width, back_length, floor_depth]);
 
       back_cutout_length = back_length - (base_edge * 2);
 
@@ -83,7 +84,7 @@ module base()
 
   // base for front
   difference() {
-    cube([total_width, front_length, front_height]);
+    cube([inner_width, front_length, front_height]);
 
     front_cutout_length = front_length - (base_edge * 2);
 
@@ -94,7 +95,7 @@ module base()
     // slope the base for easy pickup of cards
     translate([0, 0, front_height])
       rotate([-base_rotation, 0, 0])
-        cube([total_width, titled_length, front_height]);
+        cube([total_width, front_tilted_length, front_height]);
   }
 }
 
@@ -147,9 +148,9 @@ module join_wall()
   x_scale = cutout_radius_width / cutout_radius;
 
   difference() {
-    cube([total_width, wall_width, holder_height]);
+    cube([inner_width, wall_width, holder_height]);
 
-    translate([total_width / 2, wall_width, holder_height])
+    translate([inner_width / 2, wall_width, holder_height])
       rotate([90, 0, 0])
         scale([x_scale, 1, 1])
           cylinder(wall_width, cutout_radius, cutout_radius);
@@ -189,7 +190,7 @@ module window()
     ]);
 }
 
-module rounded_cube(size = [10, 10, 10], radius = wall_width)
+module rounded_cube(size = [10, 10, 10], radius = rounding)
 {
   translate_min = radius;
   translate_xmax = size[0] - radius;
