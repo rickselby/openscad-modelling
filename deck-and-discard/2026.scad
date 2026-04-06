@@ -5,8 +5,8 @@
 // supply = 63 x 89 x 15
 // contact = 89 x 63 x 15
 
-card_width = 63;
-card_length = 89;
+card_width = 89;
+card_length = 63;
 deck_height = 15;
 
 // Other things you may want to change
@@ -46,10 +46,12 @@ base_rotation = atan(front_height / discard_length) - atan(floor_depth / titled_
 base_edge = wall_width * 2;
 edge_by_wall = wall_width * 4;
 cutout_radius_width = (inner_width / 2) - edge_by_wall;
+//cutout_radius_width = holder_height - floor_depth - (wall_width * 2);
 cutout_radius = min(
   cutout_radius_width,
   holder_height - floor_depth - (wall_width * 2)
 );
+front_cutout_radius = cutout_radius_width;
 
 // more window stuff
 // calculate where
@@ -114,11 +116,11 @@ module base()
         cutout_cylinder(front_height, base_edge);
 
       // round the front corners
-      h = cutout_radius + base_edge + rounding;
-      // x,y for rounding the corner nearest the wall
-      x1 = (total_width / 2) - edge_by_wall - wall_width - rounding;
+      h = front_cutout_radius + base_edge + rounding;
+      // x,y for center of circle for rounding the corner nearest the wall
+      x1 = front_cutout_radius - rounding;
       y1 = sqrt((h ^ 2) - (x1 ^ 2));
-      // x,y for rounding the corner nearest the center
+      // x,y for center of circle for rounding the corner nearest the center
       x2 = wall_width + rounding;
       y2 = sqrt((h^2) - (x2^2));
 
@@ -189,7 +191,7 @@ module join_wall()
 
     translate([total_width / 2, wall_width, holder_height])
       rotate([90, 0, 0])
-        cutout_cylinder(wall_width);
+        cutout_cylinder(wall_width, radius = cutout_radius);
   }
 }
 
@@ -245,10 +247,14 @@ module rounded_rect(size = [5, 5], radius = rounding)
       circle(radius);
 }
 
-module cutout_cylinder(height, adjust = 0)
+module cutout_cylinder(height, adjust = 0, radius = front_cutout_radius)
 {
-  scale([cutout_radius_width / (cutout_radius), 1, 1])
-    cylinder(height, cutout_radius + adjust, cutout_radius + adjust);
+  s = cutout_radius_width / radius;
+  // adjust the scale if there's an adjustment
+  s2 = ((radius * s) + adjust) / (radius + adjust);
+
+  scale([s2, 1, 1])
+    cylinder(height, radius + adjust, radius + adjust);
 }
 
 module fill_in_corner(h, x, length, xpos = true)
