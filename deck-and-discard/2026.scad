@@ -47,7 +47,6 @@ titled_length = sqrt((front_height ^ 2) + (front_length ^ 2) - (floor_depth ^ 2)
 base_rotation = atan(front_height / front_length) - atan(floor_depth / titled_length);
 
 base_edge = extra_space;
-back_edge_by_wall = extra_space * 2.5;
 
 front_cutout_radius = (inner_width / 2) - base_edge;;
 
@@ -74,7 +73,6 @@ module base()
     difference() {
       cube([total_width, back_length, floor_depth]);
 
-      back_cutout_width = (inner_width / 2) - (base_edge / 2) - back_edge_by_wall;
       back_cutout_length = back_length - (base_edge * 2);
 
       for(x = cutout_x)
