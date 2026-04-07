@@ -89,14 +89,13 @@ module base()
     front_cutout_radius = (inner_width / 2) - base_edge;
 
     // rounded cutout at front
-    translate([total_width / 2, 0])
+    translate([inner_width / 2, 0])
       cylinder(front_height, front_cutout_radius, front_cutout_radius);
 
     front_cutout_length = front_length - (base_edge * 2);
 
     // rectangular-ish cutouts to save material
     difference() {
-
       union() {
         for(x = cutout_x)
           translate([x, base_edge, 0])
@@ -104,7 +103,7 @@ module base()
       }
 
       // cut out the rounded cut out at the front plus the base edge
-      translate([total_width / 2, 0])
+      translate([inner_width / 2, 0])
         cylinder(front_height, front_cutout_radius + base_edge, front_cutout_radius + base_edge);
 
       // round the front corners
@@ -112,13 +111,13 @@ module base()
 
       for(x = cutout_x) {
         x1_from_left = x + rounding;
-        x1 = (total_width / 2) - x1_from_left;
+        x1 = (inner_width / 2) - x1_from_left;
         y1 = sqrt((h ^ 2) - (x1 ^ 2));
         translate([x1_from_left, y1, 0])
           fill_in_corner(h, x1, y1);
 
         x2_from_left = x + cutout_width - rounding;
-        x2 = (total_width / 2) - x2_from_left;
+        x2 = (inner_width / 2) - x2_from_left;
         y2 = sqrt((h^2) - (x2^2));
         translate([x2_from_left, y2, 0])
           mirror([1, 0, 0])
@@ -129,7 +128,7 @@ module base()
     // slope the base for easy pickup of cards
     translate([0, 0, front_height])
       rotate([-base_rotation, 0, 0])
-        cube([total_width, front_tilted_length, front_height]);
+        cube([inner_width, front_tilted_length, front_height]);
   }
 }
 
