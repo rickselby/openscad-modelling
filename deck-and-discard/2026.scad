@@ -7,7 +7,7 @@
 
 card_width = 63;
 card_length = 89;
-deck_height = 15;
+deck_height = 30;
 
 // Other things you may want to change
 
@@ -32,7 +32,7 @@ holder_height = max(card_length * 0.45, deck_height + floor_depth + extra_space)
 inner_width = card_width + extra_space;
 total_width = inner_width + (wall_width * 2);
 
-front_tilted_length = card_length * (2/3);
+front_tilted_length = card_length;
 front_length = sqrt((front_tilted_length ^ 2) - ((front_height - floor_depth) ^ 2));
 back_length = deck_height + extra_space;
 total_length = front_length + back_length + (wall_width * 2);
@@ -105,10 +105,10 @@ module side_wall()
     cube([wall_width, total_length, holder_height]);
 
     // slice out the top to angle it down towards the front
-    translate([0, (front_length / 2), holder_height - (holder_height - front_height) / 2])
-      rotate([wall_rotation, 0, 0])
-        translate([0, -total_length / 2, 0])
-          cube([wall_width, total_length, holder_height]);
+//    translate([0, (front_length / 2), holder_height - (holder_height - front_height) / 2])
+//      rotate([wall_rotation, 0, 0])
+//        translate([0, -total_length / 2, 0])
+//          cube([wall_width, total_length, holder_height]);
 
     if (windows) {
       // window(s) for the deck holder
