@@ -37,10 +37,11 @@ front_length = sqrt((front_tilted_length ^ 2) - ((front_height - floor_depth) ^ 
 back_length = deck_height + extra_space;
 total_length = front_length + back_length + (wall_width * 2);
 
-initial_window_width = back_length - (wall_width * 4);
+window_edges = wall_width * 2;
+initial_window_width = back_length - (window_edges * 2);
 // can't assign in an if block
-large_windows = initial_window_width > (wall_width * 8);
-window_width = large_windows ? (back_length / 2) - (wall_width * 3) : initial_window_width;
+large_windows = initial_window_width > (window_edges * 4);
+window_width = large_windows ? (back_length / 2) - (window_edges * 1.5) : initial_window_width;
 back_windows = large_windows ? 2 : 1;
 
 // angle of rotation for the wall cutouts
@@ -146,25 +147,24 @@ module side_wall()
     if (windows) {
       // window(s) for the deck holder
       for (i = [1:(back_windows)]) {
-        start_point = front_length + (wall_width * 3) + ((window_width + (wall_width * 2)) * (i - 1));
-        translate([0, start_point, floor_depth + wall_width * 2])
+        start_point = front_length + (wall_width * 3) + ((window_width + window_edges) * (i - 1));
+        translate([0, start_point, floor_depth + window_edges])
           window();
       }
 
       // position of first window in front area
-      first_window = ((wall_width * 4) + rounding) / tan(wall_rotation) + tan(base_rotation);
       // space remaining for windows
-      window_space = front_length - first_window;
+      window_space = front_length - window_edges;
       // how many windows we can fit in the space
-      window_count = floor(window_space / (window_width + (wall_width * 2)));
+      window_count = floor((front_length - window_edges) / (window_width + window_edges));
       // consistent gap between the windows
-      window_gap = (window_space - (window_count * window_width)) / (window_count + 1);
+      window_gap = (front_length - (window_count * window_width)) / (window_count + 1);
 
       // windows for the front area
       for (i = [1:(window_count)]) {
-        start_point = wall_width + first_window + (window_gap * i) + (window_width * (i - 1));
-        translate([0, start_point, floor_depth + wall_width])
-          squished_window(start_point);
+        start_point = (window_gap * i) + (window_width * (i - 1));
+        translate([0, start_point, floor_depth + window_edges])
+          window();
       }
     }
   }
