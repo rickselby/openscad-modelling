@@ -37,12 +37,11 @@ front_length = sqrt((front_tilted_length ^ 2) - ((front_height - floor_depth) ^ 
 back_length = deck_height + extra_space;
 total_length = front_length + back_length + (wall_width * 2);
 
-window_edges = wall_width * 2;
-initial_window_width = back_length - (window_edges * 2);
+window_edges = extra_space;
+window_width = min(back_length - (window_edges * 2), 15);
 // can't assign in an if block
-large_windows = initial_window_width > (window_edges * 4);
-window_width = large_windows ? (back_length / 2) - (window_edges * 1.5) : initial_window_width;
-back_windows = large_windows ? 2 : 1;
+large_windows = false;
+//window_width = large_windows ? (back_length / 2) - (window_edges * 1.5) : initial_window_width;
 
 // angle of rotation for the wall cutouts
 wall_rotation = atan((holder_height - front_height) / (front_length));
@@ -144,15 +143,11 @@ module side_wall()
 //          cube([wall_width, total_length, holder_height]);
 
     if (windows) {
-      // window(s) for the deck holder
-      for (i = [1:(back_windows)]) {
-        start_point = front_length + (wall_width * 3) + ((window_width + window_edges) * (i - 1));
-        translate([0, start_point, floor_depth + window_edges])
-          window();
-      }
+      // window for the back
+      translate([0, front_length + wall_width + window_edges, floor_depth + window_edges])
+        window(back_length - (window_edges * 2));
 
-      // position of first window in front area
-      // space remaining for windows
+      // space for windows at front
       window_space = front_length - window_edges;
       // how many windows we can fit in the space
       window_count = floor((front_length - window_edges) / (window_width + window_edges));
@@ -212,24 +207,24 @@ module squished_window(start_point)
       }
 }
 
-module window()
+module window(width = window_width)
 {
-  window_height = holder_height - floor_depth - (wall_width * 4);
+  window_height = holder_height - (floor_depth * 2) - (window_edges * 2);
   rotate([90, 0, 90])
     difference() {
       rounded_cube([
-        window_width,
-        holder_height - floor_depth - (wall_width * 4),
+        width,
+        window_height,
         wall_width
         ]);
-      offset = window_width / 2;
+      offset = width / 2;
       translate([0, window_height - offset, 0])
         rotate([0, 0, 45])
-          cube([window_width, window_width, wall_width]);
+          cube([width, width, wall_width]);
 
-      translate([window_width / 2, window_height, 0])
+      translate([width / 2, window_height, 0])
         rotate([0, 0, -45])
-          cube([window_width, window_width, wall_width]);
+          cube([width, width, wall_width]);
     }
 }
 
