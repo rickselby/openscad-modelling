@@ -11,12 +11,12 @@ deck_height = 30;
 
 // Other things you may want to change
 
-wall_width = 2;
+wall_width = 2.4;
 floor_depth = wall_width;
 front_height = floor_depth + 4;
 // corner rounding on cutouts
-rounding = 2;
-windows = true;
+rounding = 2.4;
+windows = false;
 // mm to add to card width/height / deck height
 extra_space = 5;
 
@@ -27,6 +27,7 @@ $fa = $preview ? 15 : 2;    // Don't generate larger angles than 5 degrees
 
 // Calculated things
 
+half_wall = wall_width / 2;
 holder_height = max(card_length * 0.45, deck_height + floor_depth + extra_space);
 
 inner_width = card_width + extra_space;
@@ -54,25 +55,28 @@ holder();
 
 module holder()
 {
-  translate([wall_width, 0, 0]) base();
+  translate([half_wall, 0, 0]) base();
   side_wall();
   translate([total_width - wall_width, 0, 0]) side_wall();
-  translate([wall_width, front_length, 0]) join_wall();
-  translate([wall_width, total_length - wall_width, 0]) join_wall();
+  translate([half_wall, front_length, 0]) join_wall();
+  translate([half_wall, total_length - wall_width, 0]) join_wall();
 }
 
 module base()
 {
+  // base goes halfway into each wall
+  base_width = inner_width + wall_width;
+
   base_edge = extra_space;
 
   cutouts = 3;
   cutout_width = (inner_width - (base_edge * (cutouts + 1))) / cutouts;
-  cutout_x = [ for (a = [ 1 : cutouts ]) (base_edge * a) + (cutout_width * (a - 1)) ];
+  cutout_x = [ for (a = [ 1 : cutouts ]) half_wall + (base_edge * a) + (cutout_width * (a - 1)) ];
 
   // base for back
   translate([0, front_length + wall_width, 0])
     difference() {
-      cube([inner_width, back_length, floor_depth]);
+      cube([base_width, back_length, floor_depth]);
 
       back_cutout_length = back_length - (base_edge * 2);
 
@@ -83,12 +87,12 @@ module base()
 
   // base for front
   difference() {
-    cube([inner_width, front_length, front_height]);
+    cube([base_width, front_length, front_height]);
 
     front_cutout_radius = (inner_width / 2) - base_edge;
 
     // rounded cutout at front
-    translate([inner_width / 2, 0])
+    translate([base_width / 2, 0])
       cylinder(front_height, front_cutout_radius, front_cutout_radius);
 
     front_cutout_length = front_length - (base_edge * 2);
@@ -102,7 +106,7 @@ module base()
       }
 
       // cut out the rounded cut out at the front plus the base edge
-      translate([inner_width / 2, 0])
+      translate([base_width / 2, 0])
         cylinder(front_height, front_cutout_radius + base_edge, front_cutout_radius + base_edge);
 
       // round the front corners
@@ -110,13 +114,13 @@ module base()
 
       for(x = cutout_x) {
         x1_from_left = x + rounding;
-        x1 = (inner_width / 2) - x1_from_left;
+        x1 = (base_width / 2) - x1_from_left;
         y1 = sqrt((h ^ 2) - (x1 ^ 2));
         translate([x1_from_left, y1, 0])
           fill_in_corner(h, x1, y1);
 
         x2_from_left = x + cutout_width - rounding;
-        x2 = (inner_width / 2) - x2_from_left;
+        x2 = (base_width / 2) - x2_from_left;
         y2 = sqrt((h^2) - (x2^2));
         translate([x2_from_left, y2, 0])
           mirror([1, 0, 0])
@@ -127,14 +131,22 @@ module base()
     // slope the base for easy pickup of cards
     translate([0, 0, front_height])
       rotate([-base_rotation, 0, 0])
-        cube([inner_width, front_tilted_length, front_height]);
+        cube([base_width, front_tilted_length, front_height]);
   }
 }
 
 module side_wall()
 {
   difference() {
-    cube([wall_width, total_length, holder_height]);
+    linear_extrude(holder_height)
+      hull() {
+        translate([half_wall, half_wall, 0])
+          circle(half_wall);
+        translate([half_wall, total_length - half_wall, 0])
+          circle(half_wall);
+      }
+
+//    cube([wall_width, total_length, holder_height]);
 
     // slice out the top to angle it down towards the front
 //    translate([0, (front_length / 2), holder_height - (holder_height - front_height) / 2])
@@ -166,6 +178,9 @@ module side_wall()
 
 module join_wall()
 {
+  // join wall goes half way into the side walls
+  join_wall_width = inner_width + wall_width;
+
   cutout_radius_width = (inner_width / 2) - (extra_space * 1.25);
   cutout_radius = min(
     cutout_radius_width,
@@ -175,9 +190,9 @@ module join_wall()
   x_scale = cutout_radius_width / cutout_radius;
 
   difference() {
-    cube([inner_width, wall_width, holder_height]);
+    cube([join_wall_width, wall_width, holder_height]);
 
-    translate([inner_width / 2, wall_width, holder_height])
+    translate([join_wall_width / 2, wall_width, holder_height])
       rotate([90, 0, 0])
         scale([x_scale, 1, 1])
           cylinder(wall_width, cutout_radius, cutout_radius);
