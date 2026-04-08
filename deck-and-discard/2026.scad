@@ -60,6 +60,28 @@ module holder()
   translate([total_width - wall_width, 0, 0]) side_wall();
   translate([half_wall, front_length, 0]) join_wall();
   translate([half_wall, total_length - wall_width, 0]) join_wall();
+
+  // rounding between walls
+  // front and join wall
+  translate([wall_width, front_length, 0])
+    rotate([0, 0, -90]) linear_extrude(holder_height) inner_rounding();
+
+  translate([total_width - wall_width, front_length, 0])
+    rotate([0, 0, 180]) linear_extrude(holder_height) inner_rounding();
+
+  // back and join wall
+  translate([wall_width, front_length + wall_width, 0])
+    linear_extrude(holder_height) inner_rounding();
+
+  translate([total_width - wall_width, front_length + wall_width, 0])
+    rotate([0, 0, 90]) linear_extrude(holder_height) inner_rounding();
+
+  // back and back wall
+  translate([wall_width, total_length - wall_width, 0])
+    rotate([0, 0, -90]) linear_extrude(holder_height) inner_rounding();
+
+  translate([total_width - wall_width, total_length - wall_width, 0])
+    rotate([0, 0, 180]) linear_extrude(holder_height) inner_rounding();
 }
 
 module base()
@@ -94,6 +116,13 @@ module base()
     // rounded cutout at front
     translate([base_width / 2, 0])
       cylinder(front_height, front_cutout_radius, front_cutout_radius);
+
+    // round front corners
+    rounding_offset = sqrt((front_cutout_radius ^ 2) - (half_wall ^ 2));
+    translate([(base_width / 2) - rounding_offset, 0, 0])
+      rotate([0, 0, 90]) linear_extrude(front_height) inner_rounding();
+    translate([(base_width / 2) + rounding_offset, 0, 0])
+      linear_extrude(front_height) inner_rounding();
 
     front_cutout_length = front_length - (base_edge * 2);
 
@@ -271,5 +300,13 @@ module fill_in_corner(h, x, length, xpos = true)
     translate([-rounding, -length, 0])
       cube([fx + rounding, length, front_height]);
     cylinder(front_height, rounding, rounding);
+  }
+}
+
+module inner_rounding()
+{
+  difference() {
+    square([half_wall, half_wall]);
+    translate([half_wall, half_wall, 0]) circle(half_wall);
   }
 }
