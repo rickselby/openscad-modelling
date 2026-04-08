@@ -16,7 +16,7 @@ floor_depth = wall_width;
 front_height = floor_depth + 4;
 // corner rounding on cutouts
 rounding = 2;
-windows = false;
+windows = true;
 // mm to add to card width/height / deck height
 extra_space = 5;
 
@@ -52,7 +52,6 @@ base_rotation = asin((front_height - floor_depth) / front_tilted_length);
 
 // build it!
 holder();
-//join_wall();
 
 module holder()
 {
@@ -215,12 +214,23 @@ module squished_window(start_point)
 
 module window()
 {
+  window_height = holder_height - floor_depth - (wall_width * 4);
   rotate([90, 0, 90])
-    rounded_cube([
-      window_width,
-      holder_height - floor_depth - (wall_width * 4),
-      wall_width
-    ]);
+    difference() {
+      rounded_cube([
+        window_width,
+        holder_height - floor_depth - (wall_width * 4),
+        wall_width
+        ]);
+      offset = window_width / 2;
+      translate([0, window_height - offset, 0])
+        rotate([0, 0, 45])
+          cube([window_width, window_width, wall_width]);
+
+      translate([window_width / 2, window_height, 0])
+        rotate([0, 0, -45])
+          cube([window_width, window_width, wall_width]);
+    }
 }
 
 module rounded_cube(size = [10, 10, 10], radius = rounding)
