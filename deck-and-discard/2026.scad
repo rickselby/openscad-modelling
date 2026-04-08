@@ -16,7 +16,7 @@ floor_depth = wall_width;
 front_height = floor_depth + 4;
 // corner rounding on cutouts
 rounding = 2.4;
-windows = false;
+windows = true;
 // mm to add to card width/height / deck height
 extra_space = 5;
 
@@ -38,11 +38,12 @@ front_length = sqrt((front_tilted_length ^ 2) - ((front_height - floor_depth) ^ 
 back_length = deck_height + extra_space;
 total_length = front_length + back_length + (wall_width * 2);
 
-window_edges = extra_space;
-window_width = min(back_length - (window_edges * 2), 15);
+window_side_edges = extra_space * 1.5;
+window_top_bottom_edges = extra_space;
+window_width = min(back_length - (window_side_edges * 2), 15);
 // can't assign in an if block
 large_windows = false;
-//window_width = large_windows ? (back_length / 2) - (window_edges * 1.5) : initial_window_width;
+//window_width = large_windows ? (back_length / 2) - (window_side_edges * 1.5) : initial_window_width;
 
 // angle of rotation for the wall cutouts
 wall_rotation = atan((holder_height - front_height) / (front_length));
@@ -185,20 +186,20 @@ module side_wall()
 
     if (windows) {
       // window for the back
-      translate([0, front_length + wall_width + window_edges, floor_depth + window_edges])
-        window(back_length - (window_edges * 2));
+      translate([0, front_length + wall_width + window_side_edges, floor_depth + window_top_bottom_edges])
+        window(back_length - (window_side_edges * 2));
 
       // space for windows at front
-      window_space = front_length - window_edges;
+      window_space = front_length - window_side_edges;
       // how many windows we can fit in the space
-      window_count = floor((front_length - window_edges) / (window_width + window_edges));
+      window_count = floor((front_length - window_side_edges) / (window_width + window_side_edges));
       // consistent gap between the windows
       window_gap = (front_length - (window_count * window_width)) / (window_count + 1);
 
       // windows for the front area
       for (i = [1:(window_count)]) {
         start_point = (window_gap * i) + (window_width * (i - 1));
-        translate([0, start_point, floor_depth + window_edges])
+        translate([0, start_point, floor_depth + window_top_bottom_edges])
           window();
       }
     }
@@ -253,7 +254,7 @@ module squished_window(start_point)
 
 module window(width = window_width)
 {
-  window_height = holder_height - (floor_depth * 2) - (window_edges * 2);
+  window_height = holder_height - (floor_depth * 2) - (window_top_bottom_edges * 2);
   rotate([90, 0, 90])
     difference() {
       rounded_cube([
