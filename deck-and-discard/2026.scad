@@ -21,7 +21,7 @@ $fa = $preview ? 15 : 2;    // Don't generate larger angles than 5 degrees
 // contact = 89 x 63 x 15
 
 // build it!
-holder(63, 89, 30);
+holder(89, 63, 15);
 //translate([80, 0, 0]) holder(63, 89, 20);
 //translate([160, 0, 0]) holder(63, 89, 15);
 //translate([240, 0, 0]) holder(89, 63, 15);
@@ -179,7 +179,7 @@ module holder(card_width, card_length, deck_height)
       translate([0, wall_rounding, holder_height - wall_rounding])
         rotate([180, -90, 0])
           difference() {
-            cube([wall_rounding, wall_rounding, wall_width]);
+            cube([wall_rounding + 1, wall_rounding + 1, wall_width]);
             cylinder(wall_width, wall_rounding, wall_rounding);
           }
 
