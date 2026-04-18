@@ -1,10 +1,3 @@
-// Things to change to alter the size of the holder
-
-// misbehaves = 63 x 89 x 30
-// nav = 63 x 89 x 20
-// supply = 63 x 89 x 15
-// contact = 89 x 63 x 15
-
 // Other things you may want to change
 
 wall_width = 2.4;
@@ -22,11 +15,16 @@ $fa = $preview ? 15 : 2;    // Don't generate larger angles than 5 degrees
 
 ////////////////////////////////////////////
 
+// misbehaves = 63 x 89 x 30
+// nav = 63 x 89 x 20
+// supply = 63 x 89 x 15
+// contact = 89 x 63 x 15
+
 // build it!
 holder(63, 89, 30);
-translate([80, 0, 0]) holder(63, 89, 20);
-translate([160, 0, 0]) holder(63, 89, 15);
-translate([240, 0, 0]) holder(89, 63, 15);
+//translate([80, 0, 0]) holder(63, 89, 20);
+//translate([160, 0, 0]) holder(63, 89, 15);
+//translate([240, 0, 0]) holder(89, 63, 15);
 
 module holder(card_width, card_length, deck_height)
 {
@@ -46,9 +44,6 @@ module holder(card_width, card_length, deck_height)
   window_side_edges = wall_width * 2;
   window_top_bottom_edges = wall_width;
   window_width = min(back_length - (window_side_edges * 2), 14);
-
-  // angle of rotation for the wall cutouts
-  wall_rotation = atan((holder_height - front_height) / (front_length));
 
   // base calculations that windows need
   base_rotation = asin((front_height - floor_depth) / front_tilted_length);
@@ -171,13 +166,22 @@ module holder(card_width, card_length, deck_height)
             circle(half_wall);
         }
 
-      //    cube([wall_width, total_length, holder_height]);
+//      // angle of rotation for the wall cutouts
+//      wall_rotation = atan((holder_height - front_height) / (front_length / 2));
+//      // slice out the top to angle it down towards the front
+//      translate([0, (front_length / 4), holder_height - (holder_height - front_height) / 2])
+//        rotate([wall_rotation, 0, 0])
+//          translate([0, -total_length / 2, 0])
+//            cube([wall_width, total_length, holder_height]);
 
-      // slice out the top to angle it down towards the front
-      //    translate([0, (front_length / 2), holder_height - (holder_height - front_height) / 2])
-      //      rotate([wall_rotation, 0, 0])
-      //        translate([0, -total_length / 2, 0])
-      //          cube([wall_width, total_length, holder_height]);
+      // round the front corner of the wall
+      wall_rounding = (holder_height) / 2;
+      translate([0, wall_rounding, holder_height - wall_rounding])
+        rotate([180, -90, 0])
+          difference() {
+            cube([wall_rounding, wall_rounding, wall_width]);
+            cylinder(wall_width, wall_rounding, wall_rounding);
+          }
 
       if (windows) {
         window_z = front_height;
