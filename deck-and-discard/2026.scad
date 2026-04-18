@@ -9,10 +9,11 @@
 
 wall_width = 2.4;
 floor_depth = wall_width;
-front_height = floor_depth + 4;
+front_height = floor_depth * 3;
 // corner rounding on cutouts
 rounding = wall_width;
-windows = true;
+// still not happy with the windows. feel free to try them out!
+windows = false;
 // mm to add to card width/height / deck height
 extra_space = 5;
 
@@ -42,9 +43,9 @@ module holder(card_width, card_length, deck_height)
   back_length = deck_height + extra_space;
   total_length = front_length + back_length + (wall_width * 2);
 
-  window_side_edges = wall_width;
+  window_side_edges = wall_width * 2;
   window_top_bottom_edges = wall_width;
-  window_width = min(back_length - (window_side_edges * 2), 15);
+  window_width = min(back_length - (window_side_edges * 2), 14);
 
   // angle of rotation for the wall cutouts
   wall_rotation = atan((holder_height - front_height) / (front_length));
