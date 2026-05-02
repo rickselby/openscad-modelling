@@ -94,8 +94,8 @@ module holder(card_width, card_length, deck_height)
         cube([base_width, back_length, floor_depth]);
 
         for (x = cutout_x)
-          translate([x, base_edge, 0])
-            rounded_cube([cutout_width, back_length - (base_edge * 2), floor_depth]);
+          translate([x, 0, 0])
+            rounded_cube([cutout_width, back_length, floor_depth]);
       }
 
     // base for front
@@ -115,7 +115,7 @@ module holder(card_width, card_length, deck_height)
       translate([(base_width / 2) + rounding_offset, 0, 0])
         linear_extrude(front_height) inner_rounding();
 
-      front_cutout_length = front_length - (base_edge * 2);
+      front_cutout_length = front_length - base_edge;
 
       // rectangular-ish cutouts to save material
       difference() {
