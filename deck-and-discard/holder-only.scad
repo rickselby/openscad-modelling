@@ -41,12 +41,17 @@ module holder(card_width, card_length, deck_height)
 
   front_lip_height = floor_depth + (wall_width * 2);
 
+  foot_width = total_width / 6;
+
   // build the actual holder
   translate([half_wall, 0, 0]) base();
   side_wall();
   translate([total_width - wall_width, 0, 0]) side_wall();
   translate([half_wall, 0, 0]) front_lip();
   translate([half_wall, total_length - wall_width, 0]) join_wall();
+  echo(total_length);
+  translate([0, total_length, 0]) foot();
+  translate([total_width - foot_width, total_length, 0]) foot();
 
   // rounding between walls
 
@@ -64,6 +69,13 @@ module holder(card_width, card_length, deck_height)
   translate([total_width - wall_width, total_length - wall_width, 0])
     rotate([0, 0, 180]) linear_extrude(holder_height) inner_rounding();
 
+  // back and feet
+  translate([foot_width, total_length, 0])
+    linear_extrude(floor_depth) inner_rounding();
+
+  translate([total_width - foot_width, total_length, 0])
+    rotate([0, 0, 90]) linear_extrude(floor_depth) inner_rounding();
+
   module base()
   {
     // base goes halfway into each wall
@@ -80,6 +92,18 @@ module holder(card_width, card_length, deck_height)
         for (x = cutout_x)
           translate([x, 0, 0])
             rounded_cube([cutout_width, back_length, floor_depth]);
+      }
+  }
+
+  module foot()
+  {
+    half_foot_width = foot_width / 2;
+    linear_extrude(floor_depth)
+      hull() {
+        translate([0, -half_wall, 0])
+          square([foot_width, wall_width]);
+        translate([half_foot_width, total_length - half_foot_width, 0])
+          circle(half_foot_width);
       }
   }
 
