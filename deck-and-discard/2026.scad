@@ -2,7 +2,7 @@
 
 wall_width = 2.4;
 floor_depth = wall_width;
-front_height = floor_depth * 3;
+base_rotation = 5; // degrees to slant the base to keep the cards in
 // corner rounding on cutouts
 rounding = wall_width;
 // still not happy with the windows. feel free to try them out!
@@ -21,7 +21,7 @@ $fa = $preview ? 15 : 2;    // Don't generate larger angles than 5 degrees
 // contact = 89 x 63 x 15
 
 // build it!
-holder(89, 63, 15);
+holder(63, 89, 15);
 //translate([80, 0, 0]) holder(63, 89, 20);
 //translate([160, 0, 0]) holder(63, 89, 15);
 //translate([240, 0, 0]) holder(89, 63, 15);
@@ -37,6 +37,7 @@ module holder(card_width, card_length, deck_height)
   total_width = inner_width + (wall_width * 2);
 
   front_tilted_length = card_length;
+  front_height = (sin(base_rotation) * front_tilted_length) + floor_depth;
   front_length = sqrt((front_tilted_length ^ 2) - ((front_height - floor_depth) ^ 2));
   back_length = deck_height + extra_space;
   total_length = front_length + back_length + (wall_width * 2);
@@ -44,9 +45,6 @@ module holder(card_width, card_length, deck_height)
   window_side_edges = wall_width * 2;
   window_top_bottom_edges = wall_width;
   window_width = min(back_length - (window_side_edges * 2), 14);
-
-  // base calculations that windows need
-  base_rotation = asin((front_height - floor_depth) / front_tilted_length);
 
   // build the actual holder
   translate([half_wall, 0, 0]) base();
